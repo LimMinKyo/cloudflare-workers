@@ -8,8 +8,10 @@ export interface Env {
   // Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
   // MY_BUCKET: R2Bucket;
 }
+
 // @ts-ignore
 import home from "./home.html";
+import { makeBadge } from "./utils";
 
 function handleHome() {
   return new Response(home, {
@@ -18,19 +20,16 @@ function handleHome() {
     },
   });
 }
-
 function handleNotFound() {
   return new Response(null, {
     status: 404,
   });
 }
-
 function handleBadRequest() {
   return new Response(null, {
     status: 400,
   });
 }
-
 async function handleVisit(searchParams: URLSearchParams, env: Env) {
   const page = searchParams.get("page");
   if (!page) {
@@ -44,13 +43,12 @@ async function handleVisit(searchParams: URLSearchParams, env: Env) {
     value = parseInt(kvPage) + 1;
     await env.DB.put(page, value + "");
   }
-  return new Response(JSON.stringify({ visits: value }), {
+  return new Response(makeBadge(value), {
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "image/svg+xml;charset=utf-8",
     },
   });
 }
-
 export default {
   async fetch(
     request: Request,
